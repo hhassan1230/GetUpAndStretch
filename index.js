@@ -2,6 +2,12 @@ const secrets = require('./secrets.local');
 const moment = require('moment');
 const botkit = require('botkit');
 
+if (!secrets.API_KEY) {
+    console.log('Error: Specify a token secrets file');
+
+    process.exit(1);
+}
+
 // local state
 const state = {
     userNickName: {},
@@ -63,7 +69,7 @@ controller.hears('call me', ['direct_message', 'direct_mention'], function (bot,
     }, 2000);
 });
 
-controller.hears('who am i?', ['direct_message', 'direct_mention'], function (bot, message) {
+controller.hears(/who am i\??/, ['direct_message', 'direct_mention'], function (bot, message) {
     console.log(state.userNickName);
 
     if (state.userNickName[message.user]) {
@@ -75,6 +81,17 @@ controller.hears('who am i?', ['direct_message', 'direct_mention'], function (bo
 });
 
 controller.hears(['check', 'see', 'how', 'funny'], ['direct_message', 'direct_mention'], function (bot, message) {
-    bot.reply(message, ':middle_finger:');
+    bot.api.reactions.add({
+        timestamp: message.ts,
+        channel: message.channel,
+        name: 'middle_finger'
+    }, function(err, res) {
+        if (err) {
+            bot.botkit.log('Failed to add emoji reaction :(', err);
+        }
+    });
 });
 
+controller.hears('', ['presence_change'], function (bot, message) {
+    console.log(message);
+});
