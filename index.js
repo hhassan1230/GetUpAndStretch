@@ -65,3 +65,8 @@ controller.hears('who am i?', ['direct_message', 'direct_mention'], function (bo
         bot.reply(message, 'You haven\'t told me your name yet. You can tell me by saying: `call me <name>`');
     }
 });
+
+controller.hears(['check', 'see', 'how'], ['direct_message', 'direct_mention'], function (bot, message) {
+    bot.reply(message, ':middle_finger: ');
+});
+
