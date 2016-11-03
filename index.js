@@ -82,14 +82,21 @@ controller.hears(
     }
 );
 
+controller.hears('open the pod bay doors hal', ['direct_message', 'direct_mention'], function (bot, message) {
+    utils.sendMessage(message, 'I\'m sorry, Dave. I\'m afraid I can\'t do that.');
+});
+
 controller.hears('remind me to stretch every (.*)', ['direct_message', 'direct_mention'], function (bot, message) {
     if (state.reminderSet) {
         clearInterval(reminderInterval);
     }
-    var timeType = message.match[1]; //match[1] is the (.*) group. match[0] is the entire group (open the (.*) doors).
+
+    const timeType = message.match[1]; //match[1] is the (.*) group. match[0] is the entire group (open the (.*) doors).
+
     if (timeType === 'pod bay') {
         return bot.reply(message, 'I\'m sorry, Dave. I\'m afraid I can\'t do that.');
     }
+
     return bot.reply(message, `Okay reminding you every ${timeType}`);
 });
 
@@ -118,7 +125,7 @@ controller.hears(['stop reminding me', 'stop reminding me mothafucka', 'stop rem
 });
 
 controller.hears(['candy restocked', 'restocked'], ['direct_message', 'direct_mention'], function (bot, message) {
-    utils.getTeamData(message.team, function (team) {
+    utils.getTeamData(message.team, function (err, team) {
         team.timeCandyLastFilled = +(new Date());
 
         utils.sendMessage(message, 'Thanks for the note bro, I\'ll tell everyone else.');
@@ -128,7 +135,7 @@ controller.hears(['candy restocked', 'restocked'], ['direct_message', 'direct_me
 });
 
 controller.hears('candy', ['direct_message', 'direct_mention'], function (bot, message) {
-    utils.getTeamData(message.team, function (team) {
+    utils.getTeamData(message.team, function (err, team) {
         if (!team.timeCandyLastFilled) {
             utils.sendMessage(message, 'I have no idea when the candy was last filled.  Why don\'t you just get up and see for yourself!');
         }

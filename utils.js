@@ -41,12 +41,12 @@ module.exports = function (controller, botInstance) {
                 };
             }
 
-            cb(err, team);
+            cb && cb(err, team);
         });
     }
 
-    function saveTeamData(team, cb) {
-        controller.storage.teams.save(team, function (err, team) {
+    function saveTeamData(messageTeam, cb) {
+        controller.storage.teams.save(messageTeam, function (err, team) {
             if (err) {
                 console.error(err);
             }
