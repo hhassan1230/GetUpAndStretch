@@ -3,3 +3,4 @@ node_modules/
 .idea/modules.xml
 .idea/workspace.xml
 secrets.local.js
+.idea/misc.xml
