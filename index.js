@@ -165,7 +165,7 @@ controller.hears('samuel', ['direct_message', 'direct_mention'], function (bot, 
     });
 });
 
-controller.hears(['what did you say', 'whatdidyousay'], ['direct_message', 'direct_mention'], function (bot, message) {
+controller.hears(['what did you say', 'whatdidyousay', 'saywhat'], ['direct_message', 'direct_mention'], function (bot, message) {
     function callback(tweets) {
         const randomTweet = Math.floor(Math.random() * tweets.length);
         bot.reply(message, {
