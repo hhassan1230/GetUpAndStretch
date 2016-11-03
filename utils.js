@@ -29,6 +29,32 @@ module.exports = function (controller, botInstance) {
         });
     }
 
+    function getTeamData(messageTeam, cb) {
+        controller.storage.teams.get(messageTeam, function (err, team) {
+            if (err) {
+                console.error(err);
+            }
+
+            if (!team) {
+                team = {
+                    id: messageTeam
+                };
+            }
+
+            cb(err, team);
+        });
+    }
+
+    function saveTeamData(team, cb) {
+        controller.storage.teams.save(team, function (err, team) {
+            if (err) {
+                console.error(err);
+            }
+
+            cb && cb(err, team);
+        });
+    }
+
     function sendMessage(message, reply) {
         botInstance.reply(message, secrets.botInstanceName + reply);
     }
@@ -47,6 +73,8 @@ module.exports = function (controller, botInstance) {
         saveUser: saveUser,
         getUser: getUser,
         sendMessage: sendMessage,
-        identifyBot: identifyBot
+        identifyBot: identifyBot,
+        getTeamData: getTeamData,
+        saveTeamData: saveTeamData
     }
 };

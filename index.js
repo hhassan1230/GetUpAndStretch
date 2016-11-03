@@ -121,11 +121,39 @@ controller.hears('stop reminding me mothafucka', ['direct_message', 'direct_ment
 });
 
 controller.hears('restocked', ['direct_message', 'direct_mention'], function (bot, message) {
-    console.log('Candy restock notification received');
+    utils.getTeamData(message.team, function (team) {
+        team.timeCandyLastFilled = +(new Date());
 
-    state.timeCandyLastFilled = +(new Date());
+        utils.sendMessage(message, 'Thanks for the note bro, I\'ll tell everyone else.');
 
-    utils.sendMessage(message, 'Thanks for notifying me that there is delicious candy in the kitchen.');
+        utils.saveTeamData(team);
+    });
+});
+
+controller.hears('candy', ['direct_message', 'direct_mention'], function(bot, message) {
+    utils.getTeamData(message.team, function (team) {
+        if (!team.timeCandyLastFilled) {
+            utils.sendMessage(message, 'I have no idea when the candy was last filled.  Why don\'t you just get up and see for yourself!');
+        }
+        else {
+            const prettyTime = moment(team.timeCandyLastFilled).fromNow();
+
+            utils.sendMessage(message, 'The time the candy jars were filled last in the kitchen was ' + prettyTime);
+
+            const now = +(new Date());
+            const timeSinceCandyLastFilled = now - team.timeCandyLastFilled;
+
+            if (timeSinceCandyLastFilled < onehour * 0.5) {
+                utils.sendMessage(message, 'Your chances of there being candy is *GOOD*, mutha fucker!');
+            }
+            else if (timeSinceCandyLastFilled < onehour) {
+                utils.sendMessage(message, 'Your chances of there being candy is _OKAY_, mutha fucker!');
+            }
+            else if (timeSinceCandyLastFilled < onehour * 3) {
+                utils.sendMessage(message, 'Your chances of there being candy is SLIM, mutha fucker!');
+            }
+        }
+    });
 });
 
 controller.hears('samuel', ['direct_message', 'direct_mention'], function (bot, message) {
@@ -159,7 +187,6 @@ controller.hears(['what did you say', 'whatdidyousay'], ['direct_message', 'dire
 });
 
 controller.hears('candy', ['direct_message', 'direct_mention'], function(bot, message) {
-
     if (!state.timeCandyLastFilled) {
         utils.sendMessage(message, 'I have no idea when the candy was last filled.  Why don\'t you just get up and see for yourself!');
     } else {
@@ -177,6 +204,7 @@ controller.hears('candy', ['direct_message', 'direct_mention'], function(bot, me
             utils.sendMessage(message, 'Your chances of there being candy is SLIM, mutha fucker!');
         }
     }
+    getTweets(callback);
 });
 
 controller.hears(['what', 'when', 'how', 'why', "where", "funny"], ['direct_message', 'direct_mention'], function (bot, message) {
@@ -195,7 +223,7 @@ controller.hears('', ['presence_change'], function (bot, message) {
     console.log(message);
 });
 
-function waka(bot,message) {
+function reminderConversation(bot,message) {
     let nickName;
     state.reminderSet = true;
     botInstance.startConversation(message, function(err, convo) {
@@ -241,7 +269,7 @@ function waka(bot,message) {
                 } else {
 					bot.reply(message, 'YO ANSWER WASN\'T UNDERSTOOD STUPID MOTHAFUCKA. LEARN TO FOLLOW DIRECTIONS YOU STUPID MOTHAFUCKA');
 					setTimeout(() => {
-						waka(bot, message);
+						reminderConversation(bot, message);
 					}, 1500);
 
                 }
@@ -253,7 +281,7 @@ function waka(bot,message) {
 // Name calling
 controller.hears('remind me', ['direct_message', 'direct_mention'], function (bot, message) {
 	if (!state.reminderSet) {
-	    waka(bot, message);
+	    reminderConversation(bot, message);
 	} else {
         bot.reply(message, 'YOU ALREADY BEIN REMINDED YOU STUPID MOTHAFUCKA!');
     }
