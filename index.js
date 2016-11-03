@@ -31,17 +31,23 @@ controller.hears('what up mofo', ['direct_message', 'direct_mention'], function 
 });
 
 controller.hears('restocked', ['direct_message','direct_mention'], function(bot,message) {
-	console.log('Candy restock notification received');
+    console.log('Candy restock notification received');
 
-	state.timeCandyLastFilled = new Date();
+    state.timeCandyLastFilled = new Date();
 
-	bot.reply(message, 'Thanks for notifying me that there is delicious candy in the kitchen.  I will inform everyone.');
+    bot.reply(message, 'Thanks for notifying me that there is delicious candy in the kitchen.  I will inform everyone.');
 });
 
 controller.hears('candy', ['direct_message','direct_mention'], function(bot,message) {
-	console.log('Candy request received');
+    console.log('Candy request received');
 
-	bot.reply(message, 'The time the candy jars were filled last in the kitchen was' + state.timeCandyLastFilled);
+    if (!state.timeCandyLastFilled) {
+        bot.reply(message, 'I have no idea when the candy was last filled.  Why don\'t you just get up and see for yourself!');
+    } else {
+        const prettyTime = moment(state.timeCandyLastFilled).fromNow();
+
+        bot.reply(message, 'The time the candy jars were filled last in the kitchen was ' + prettyTime);
+    }
 });
 
 // Name calling
