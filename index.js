@@ -68,7 +68,7 @@ controller.hears(
 controller.hears('remind me to stretch', ['direct_message', 'direct_mention'], function (bot, message) {
     if (!state.reminderSet) {
     	reminderInterval = setInterval(
-    		stretchReminder.bind(this, bot, message), 
+    		stretchReminder.bind(this, bot, message),
     		state.hourInterval
 		);
 		state.reminderSet = true;
@@ -97,31 +97,33 @@ controller.hears('what up mofo', ['direct_message', 'direct_mention'], function 
     }
 });
 
-controller.hears('restocked', ['direct_message','direct_mention'], function(bot,message) {
-    console.log('Candy restock notification received');
-
+controller.hears('restocked', ['direct_message','direct_mention'], function(bot, message) {
     state.timeCandyLastFilled = +(new Date());
 
-    sendMessage(message, secrets.botInstanceName + 'Thanks for notifying me that there is delicious candy in the kitchen.  I will inform everyone.');
+    sendMessage(message, 'Thanks for notifying me that there is delicious candy in the kitchen.');
+});
+
+controller.hears('samuel', ['direct_message','direct_mention'], function(bot, message) {
+    bot.reply(message, 'https://cdn.meme.am/instances/63982466.jpg?v='+(+(new Date())));
 });
 
 controller.hears('candy', ['direct_message','direct_mention'], function(bot, message) {
 
     if (!state.timeCandyLastFilled) {
-        sendMessage('I have no idea when the candy was last filled.  Why don\'t you just get up and see for yourself!');
+        sendMessage(message, 'I have no idea when the candy was last filled.  Why don\'t you just get up and see for yourself!');
     } else {
         const prettyTime = moment(state.timeCandyLastFilled).fromNow();
 
-        sendMessage('The time the candy jars were filled last in the kitchen was ' + prettyTime);
+        sendMessage(message, 'The time the candy jars were filled last in the kitchen was ' + prettyTime);
 
         const now = +(new Date());
         const timeSinceCandyLastFilled = now - state.timeCandyLastFilled;
         if (timeSinceCandyLastFilled < onehour * 0.5) {
-            sendMessage('Your chances of there being candy is *GOOD*, mutha fucker!');
+            sendMessage(message, 'Your chances of there being candy is *GOOD*, mutha fucker!');
         } else if (timeSinceCandyLastFilled < onehour) {
-            sendMessage('Your chances of there being candy is _OKAY_, mutha fucker!');
+            sendMessage(message, 'Your chances of there being candy is _OKAY_, mutha fucker!');
         } else if (timeSinceCandyLastFilled < onehour * 3) {
-            sendMessage('Your chances of there being candy is SLIM, mutha fucker!');
+            sendMessage(message, 'Your chances of there being candy is SLIM, mutha fucker!');
         }
     }
 });
