@@ -1,0 +1,22 @@
+{
+  "name": "get-up-and-stretch",
+  "version": "1.0.0",
+  "description": "a slackbot for reminders to stretch",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hhassan1230/GetUpAndStretch.git"
+  },
+  "author": "",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/hhassan1230/GetUpAndStretch/issues"
+  },
+  "homepage": "https://github.com/hhassan1230/GetUpAndStretch#readme",
+  "dependencies": {
+    "botkit": "^0.4.0"
+  }
+}
