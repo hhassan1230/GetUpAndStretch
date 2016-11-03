@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/hhassan1230/GetUpAndStretch#readme",
   "dependencies": {
-    "botkit": "^0.4.0"
+    "botkit": "^0.4.0",
+    "momentjs": "^2.0.0"
   }
 }
