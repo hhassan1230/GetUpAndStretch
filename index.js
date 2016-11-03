@@ -66,7 +66,7 @@ controller.hears('who am i?', ['direct_message', 'direct_mention'], function (bo
     }
 });
 
-controller.hears(['check', 'see', 'how'], ['direct_message', 'direct_mention'], function (bot, message) {
-    bot.reply(message, ':middle_finger: ');
+controller.hears(['check', 'see', 'how', 'funny'], ['direct_message', 'direct_mention'], function (bot, message) {
+    bot.reply(message, ':middle_finger:');
 });
 
