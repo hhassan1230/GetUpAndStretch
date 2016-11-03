@@ -1,5 +1,5 @@
 node_modules/
 *.iml
-.idea/modules.xml
-.idea/workspace.xml
 secrets.local.js
+.idea/
+data/
