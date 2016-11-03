@@ -110,10 +110,3 @@ controller.hears(['check', 'see', 'how', 'funny'], ['direct_message', 'direct_me
 controller.hears('', ['presence_change'], function (bot, message) {
     console.log(message);
 });
-
-//when the bot gets invited to a channel
-
-controller.on('bot_added',function(bot,message) {
-  bot.reply(message, 'Can-a muh fukkasay fuck on here?');
-
-});
