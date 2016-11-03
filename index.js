@@ -43,7 +43,7 @@ controller.hears('restocked', ['direct_message','direct_mention'], function(bot,
 
     state.timeCandyLastFilled = +(new Date());
 
-    bot.reply(message, 'Thanks for notifying me that there is delicious candy in the kitchen.  I will inform everyone.');
+    bot.reply(message, secrets.botInstanceName + 'Thanks for notifying me that there is delicious candy in the kitchen.  I will inform everyone.');
 });
 
 controller.hears('candy', ['direct_message','direct_mention'], function(bot, message) {
