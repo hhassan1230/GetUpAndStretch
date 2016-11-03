@@ -4,7 +4,7 @@ const botkit = require('botkit');
 
 // local state
 const state = {
-    userNickName: null,
+    userNickName: {},
     timeCandyLastFilled: null
 };
 
@@ -41,27 +41,29 @@ controller.hears('restocked', ['direct_message','direct_mention'], function(bot,
 controller.hears('candy', ['direct_message','direct_mention'], function(bot,message) {
 	console.log('Candy request received');
 
-	bot.reply(message, 'The time the candy jars were filled last in the kitchen was' + timeCandyLastFilled);
+	bot.reply(message, 'The time the candy jars were filled last in the kitchen was' + state.timeCandyLastFilled);
 });
 
 // Name calling
 controller.hears('call me', ['direct_message', 'direct_mention'], function (bot, message) {
-    state.userNickName = message.text.replace('call me ', '');
+    state.userNickName[message.user] = message.text.replace('call me ', '');
 
     console.log(message);
 
-    bot.reply(message, 'nah, I don\'t feel like it...');
+    bot.reply(message, 'You don\'t tell me, what to do motherfucker!...');
 
     setTimeout(function () {
-        bot.reply(message, 'ok, I\'ll call you ' + state.userNickName);
+        bot.reply(message, 'ok fine, I\'ll call you ' + state.userNickName[message.user]);
     }, 2000);
 });
 
 controller.hears('who am i?', ['direct_message', 'direct_mention'], function (bot, message) {
-    if (state.userNickName) {
-        bot.reply(message, 'You told me before your name was ' + state.userNickName);
+    console.log(state.userNickName);
+
+    if (state.userNickName[message.user]) {
+        bot.reply(message, 'You fucking told me before your name was ' + state.userNickName[message.user]);
     }
     else {
-        bot.reply(message, 'You haven\'t told me your name yet. You can tell me by saying: `call me <name>`');
+        bot.reply(message, 'You haven\'t fucking told me your name yet. You can tell me by saying: `call me <name>`');
     }
 });
