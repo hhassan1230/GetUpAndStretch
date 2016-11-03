@@ -25,7 +25,8 @@ const state = {
 // setup
 const controller = botkit.slackbot({
     debug: false,
-    interactive_replies: true
+    interactive_replies: true,
+    json_file_store: './data',
 });
 
 let reminderInterval;
@@ -43,7 +44,7 @@ const botInstance = controller.spawn({
     }
 });
 
-const utils = require('./utils')(botInstance);
+const utils = require('./utils')(controller, botInstance);
 require('./userName')(controller, botInstance);
 
 //when bot enters the room

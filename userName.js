@@ -1,6 +1,6 @@
-const utils = require('./utils');
-
 module.exports = function (controller, botInstance) {
+    const utils = require('./utils')(controller, botInstance);
+
     function startNameConvo(message, cb) {
         let nickName;
 
@@ -45,7 +45,7 @@ module.exports = function (controller, botInstance) {
         });
     }
 
-// Name calling
+    // Name calling
     controller.hears([/^call me ?(.*)?$/, /^my name is ?(.*)?$/], ['direct_message', 'direct_mention'], function (bot, message) {
         const nickName = message.match[1];
 
@@ -79,9 +79,6 @@ module.exports = function (controller, botInstance) {
 
     controller.hears(['who am i'], ['direct_message', 'direct_mention'], function (bot, message) {
         utils.getUser(message.user, function (err, user) {
-            console.log(err);
-            console.log(user);
-
             if (user.name) {
                 utils.sendMessage(message, 'You fucking told me before your name was ' + user.name);
             }

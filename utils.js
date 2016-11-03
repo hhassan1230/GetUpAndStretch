@@ -2,7 +2,7 @@ const secrets = require('./secrets.local');
 const os = require('os');
 const moment = require('moment');
 
-module.exports = function (botInstance) {
+module.exports = function (controller, botInstance) {
     function saveUser(user, cb) {
         controller.storage.users.save(user, function (err, user) {
             if (err) {
