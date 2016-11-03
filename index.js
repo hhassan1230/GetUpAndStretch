@@ -109,7 +109,8 @@ controller.hears('remind me to stretch', ['direct_message', 'direct_mention'], f
         state.reminderSet = true;
         bot.reply(message, 'YOU GON BE REMINDED MOTHAFUCKA!');
         bot.reply(message, 'To quit reminders type: `stop reminding me mothafucka`');
-    } else {
+    }
+    else {
         bot.reply(message, 'YOU ALREADY BEIN REMINDED YOU STUPID MOTHAFUCKA!');
     }
 });
@@ -257,7 +258,6 @@ function reminderConversation(bot, message) {
     });
 }
 
-// Name calling
 controller.hears('remind me', ['direct_message', 'direct_mention'], function (bot, message) {
     if (!state.reminderSet) {
         reminderConversation(bot, message);
