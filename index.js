@@ -1,5 +1,5 @@
 const secrets = require('./secrets.local');
-const moment = require('momentjs');
+const moment = require('moment');
 const botkit = require('botkit');
 
 let timeCandyLastFilled = null;
