@@ -8,7 +8,7 @@ const controller = botkit.slackbot({
 
 // connect the bot to a stream of messages
 controller.spawn({
-  token: 'xoxb-98957349841-lWUUqT3eYmj9QK60KR77cuUw'
+  token: ''
 }).startRTM();
 
 // give the bot something to listen for.
