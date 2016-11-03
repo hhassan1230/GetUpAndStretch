@@ -48,7 +48,13 @@ controller.hears('candy', ['direct_message','direct_mention'], function(bot,mess
 controller.hears('call me', ['direct_message', 'direct_mention'], function (bot, message) {
     state.userNickName = message.text.replace('call me ', '');
 
-    bot.reply(message, 'ok, I\'ll call you ' + state.userNickName);
+    console.log(message);
+
+    bot.reply(message, 'nah, I don\'t feel like it...');
+
+    setTimeout(function () {
+        bot.reply(message, 'ok, I\'ll call you ' + state.userNickName);
+    }, 2000);
 });
 
 controller.hears('who am i?', ['direct_message', 'direct_mention'], function (bot, message) {
