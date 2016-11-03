@@ -2,11 +2,10 @@ const secrets = require('./secrets.local');
 const moment = require('moment');
 const botkit = require('botkit');
 
-let timeCandyLastFilled = null;
-
 // local state
 const state = {
-    userNickName: null
+    userNickName: null,
+    timeCandyLastFilled: null
 };
 
 const controller = botkit.slackbot({
@@ -33,21 +32,30 @@ controller.hears('what up mofo', ['direct_message', 'direct_mention'], function 
 
 controller.hears('restocked', ['direct_message','direct_mention'], function(bot,message) {
 	console.log('Candy restock notification received');
-	timeCandyLastFilled = +(new Date());
+
+	state.timeCandyLastFilled = new Date();
+
 	bot.reply(message, 'Thanks for notifying me that there is delicious candy in the kitchen.  I will inform everyone.');
 });
 
 controller.hears('candy', ['direct_message','direct_mention'], function(bot,message) {
 	console.log('Candy request received');
+
 	bot.reply(message, 'The time the candy jars were filled last in the kitchen was' + timeCandyLastFilled);
 });
 
+// Name calling
 controller.hears('call me', ['direct_message', 'direct_mention'], function (bot, message) {
-    let out = '';
-    const myConsole = new console.Console(out, err);
+    state.userNickName = message.text.replace('call me ', '');
 
-    myConsole.log('bot:', bot);
-    myConsole.log('message:', message);
+    bot.reply(message, 'ok, I\'ll call you ' + state.userNickName);
+});
 
-    bot.reply(out);
+controller.hears('who am i?', ['direct_message', 'direct_mention'], function (bot, message) {
+    if (state.userNickName) {
+        bot.reply(message, 'You told me before your name was ' + state.userNickName);
+    }
+    else {
+        bot.reply(message, 'You haven\'t told me your name yet. You can tell me by saying: `call me <name>`');
+    }
 });
