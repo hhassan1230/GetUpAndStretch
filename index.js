@@ -15,7 +15,7 @@ if (!secrets.API_KEY) {
 const state = {
     userNickName: {},
     timeCandyLastFilled: null,
-    upTimestamp: new Date(),
+    upTimestamp: new Date()
 };
 
 // setup
@@ -25,9 +25,15 @@ const controller = botkit.slackbot({
 
 // connect the bot to a stream of messages
 var botInstance = controller.spawn({
-    token: secrets.API_KEY
-}).startRTM(function () {
-    console.log('Done initializing.');
+    token: secrets.API_KEY,
+    retry: 3
+}).startRTM(function (err) {
+    if (err) {
+        console.error(err);
+    }
+    else {
+        console.log('Done initializing.');
+    }
 });
 
 // utilities
@@ -35,17 +41,34 @@ function sendMessage(message, reply) {
     botInstance.reply(message, secrets.botInstanceName + reply);
 }
 
+function indentifyBot() {
+    var hostname = os.hostname();
+    var uptime = moment(state.upTimestamp).fromNow();
+
+    return ':robot_face: I am a bot named <@' + botInstance.identity.name +
+        '>. I have been running for ' + uptime + ' on ' + hostname + '.';
+}
+
 // give the bot something to listen for.
+controller.hears(['hi', 'hello'], ['direct_message', 'direct_mention'], function (bot, message) {
+    controller.storage.users.get(message.user, function (err, user) {
+        if (user && user.name) {
+            sendMessage(message, 'Hello ' + user.name + '!!');
+        } else {
+            sendMessage(message, 'Hello.');
+        }
+    });
+
+    const identity = indentifyBot();
+    sendMessage(message, identity)
+});
+
 controller.hears(
     ['uptime', 'identify yourself', 'who are you', 'what is your name'],
-    'direct_message,direct_mention,mention', function(bot, message) {
-        var hostname = os.hostname();
-        var uptime = moment(state.upTimestamp).fromNow();
-
-        sendMessage(message,
-            ':robot_face: I am a bot named <@' + bot.identity.name +
-            '>. I have been running for ' + uptime + ' on ' + hostname + '.'
-        );
+    ['direct_message', 'direct_mention'],
+    function (bot, message) {
+        const identity = indentifyBot();
+        sendMessage(identity)
     }
 );
 
@@ -57,7 +80,7 @@ controller.hears('what up mofo', ['direct_message', 'direct_mention'], function 
     }
 });
 
-controller.hears('restocked', ['direct_message','direct_mention'], function(bot,message) {
+controller.hears('restocked', ['direct_message', 'direct_mention'], function (bot, message) {
     console.log('Candy restock notification received');
 
     state.timeCandyLastFilled = +(new Date());
@@ -65,7 +88,7 @@ controller.hears('restocked', ['direct_message','direct_mention'], function(bot,
     sendMessage(message, secrets.botInstanceName + 'Thanks for notifying me that there is delicious candy in the kitchen.  I will inform everyone.');
 });
 
-controller.hears('candy', ['direct_message','direct_mention'], function(bot, message) {
+controller.hears(['candy'], ['direct_message', 'direct_mention'], function (bot, message) {
 
     if (!state.timeCandyLastFilled) {
         sendMessage('I have no idea when the candy was last filled.  Why don\'t you just get up and see for yourself!');
@@ -86,26 +109,96 @@ controller.hears('candy', ['direct_message','direct_mention'], function(bot, mes
     }
 });
 
+function getUser(messageUser, cb) {
+    controller.storage.users.get(messageUser, function(err, user) {
+        if (!user) {
+            user = {
+                id: messageUser
+            };
+        }
+
+        cb(err, user);
+    });
+}
+
+function saveUser(user, cb) {
+    controller.storage.users.save(user, cb);
+}
+
+function startNameConvo(message, user) {
+    let nickName;
+
+    botInstance.startConversation(message, function(err, convo) {
+        if (!err) {
+            convo.ask('Say your name! :punch: I said say your name, motherfucker! :punch:', function (response, convo2) {
+                nickName = response.text;
+                console.log(nickName);
+                console.log(botInstance.utterances.yes);
+                convo2.ask('You want me to call you ' + response.text + '?', [
+                    {
+                        pattern: botInstance.utterances.yes,
+                        callback: function(response, convo) {
+                            console.log(nickName);
+                            user.name = nickName;
+
+                            convo.say('ok!');
+                            // since no further messages are queued after this,
+                            // the conversation will end naturally with status == 'completed'
+                            convo.next();
+                        }
+                    },
+                    {
+                        pattern: botInstance.utterances.no,
+                        callback: function(response, convo) {
+                            console.log(nickName);
+                            // stop the conversation. this will cause it to end with status == 'stopped'
+                            sendMessage('Fine!');
+                            convo.stop();
+                        }
+                    },
+                    {
+                        default: true,
+                        callback: function(response, convo) {
+                            console.log(nickName);
+                            convo.repeat();
+                            convo.next();
+                        }
+                    }
+                ]);
+
+                convo.next();
+            });
+        }
+    });
+}
+
 // Name calling
 controller.hears([/^call me ?(.*)?$/, /^my name is ?(.*)?$/], ['direct_message', 'direct_mention'], function (bot, message) {
     const nickName = message.match[1];
-    console.log(message.match);
 
-    if (!nickName) {
-        sendMessage(message, 'Call you what?? What did you want me to fucking call you?');
+    getUser(message.user, function(err, user) {
+        if (!nickName) {
+            sendMessage(message, 'Call you what?? You didn\'t fucking tell me what to call you?');
 
-        if (state.userNickName[message.user]) {
-            sendMessage(message, 'I\'ll keep calling you ' + state.userNickName[message.user]);
+            if (user.name) {
+                sendMessage(message, 'I\'ll keep calling you ' + user.name);
+            }
+            else {
+                startNameConvo(message, user);
+            }
         }
-    }
-    else {
-        state.userNickName[message.user] = nickName;
-        sendMessage(message, 'You don\'t tell me, what to do motherfucker!...');
+        else {
+            user.name = nickName;
 
-        setTimeout(function () {
-            sendMessage(message, 'ok fine, I\'ll call you ' + state.userNickName[message.user]);
-        }, 2000);
-    }
+            saveUser(user, function (err, id) {
+                sendMessage(message, 'You don\'t tell me, what to do motherfucker!...');
+
+                setTimeout(function () {
+                    sendMessage(message, 'ok fine, I\'ll call you ' + nickName);
+                }, 2000);
+            });
+        }
+    });
 });
 
 function whoami(message) {
@@ -117,8 +210,10 @@ function whoami(message) {
     }
 }
 
-controller.hears(/who am i\??/, ['direct_message', 'direct_mention'], function (bot, message) {
+controller.hears(/^who am i$/, ['direct_message', 'direct_mention'], function (bot, message) {
+    console.log(message);
     const reply = whoami(message);
+    console.log(reply);
 
     sendMessage(message, reply);
 });
@@ -128,13 +223,9 @@ controller.hears(['check', 'see', 'how', 'funny'], ['direct_message', 'direct_me
         timestamp: message.ts,
         channel: message.channel,
         name: 'middle_finger'
-    }, function(err, res) {
+    }, function (err, res) {
         if (err) {
             bot.botkit.log('Failed to add emoji reaction :(', err);
         }
     });
-});
-
-controller.hears('', ['presence_change'], function (bot, message) {
-    console.log(message);
 });
