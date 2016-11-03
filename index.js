@@ -1,19 +1,22 @@
 const secrets = require('./secrets.local');
 const moment = require('moment');
 const botkit = require('botkit');
+const { stretchReminder } = require('./reminders');
 const os = require('os');
 
 const onehour = 1000 * 60 * 60;
 
 if (!secrets.API_KEY) {
     console.log('Error: Specify a token secrets file');
-
     process.exit(1);
 }
 
 // local state
 const state = {
+    userNickName: null,
+    hourInterval: 5000,
     userNickName: {},
+    reminderSet: false,
     timeCandyLastFilled: null,
     upTimestamp: new Date()
 };
@@ -22,6 +25,8 @@ const state = {
 const controller = botkit.slackbot({
     debug: false
 });
+
+let reminderInterval;
 
 // connect the bot to a stream of messages
 var botInstance = controller.spawn({
@@ -40,6 +45,18 @@ var botInstance = controller.spawn({
 function sendMessage(message, reply) {
     botInstance.reply(message, secrets.botInstanceName + reply);
 }
+//when bot enters the room
+controller.on('bot_channel_join',function(bot,message) {
+
+    sendMessage(message,"Can-a muh fukkasay fuck on here?");
+
+});
+
+controller.on('bot_group_join',function(bot,message) {
+
+    sendMessage(message,"Can-a muh fukkasay fuck on here?");
+
+});
 
 function indentifyBot() {
     var hostname = os.hostname();
@@ -72,6 +89,30 @@ controller.hears(
     }
 );
 
+controller.hears('remind me to stretch', ['direct_message', 'direct_mention'], function (bot, message) {
+    if (!state.reminderSet) {
+    	reminderInterval = setInterval(
+    		stretchReminder.bind(this, bot, message),
+    		state.hourInterval
+		);
+		state.reminderSet = true;
+	    bot.reply(message, 'YOU GON BE REMINDED MOTHAFUCKA!');
+	    bot.reply(message, 'To quit reminders type: `stop reminding me mothafucka`');
+    } else {
+	    bot.reply(message, 'YOU ALREADY BEIN REMINDED YOU STUPID MOTHAFUCKA!');
+    }
+});
+
+controller.hears('stop reminding me mothafucka', ['direct_message', 'direct_mention'], function (bot, message) {
+    function clearReminder(){
+	    clearInterval(reminderInterval)
+	}
+
+	clearReminder();
+
+    bot.reply(message, 'No more reminders mothafucka, have fun being a fatass mothafucka!'.toUpperCase());
+});
+
 controller.hears('what up mofo', ['direct_message', 'direct_mention'], function (bot, message) {
     setTimeout(punkReply, 2000);
 
@@ -85,26 +126,30 @@ controller.hears('restocked', ['direct_message', 'direct_mention'], function (bo
 
     state.timeCandyLastFilled = +(new Date());
 
-    sendMessage(message, secrets.botInstanceName + 'Thanks for notifying me that there is delicious candy in the kitchen.  I will inform everyone.');
+    sendMessage(message, 'Thanks for notifying me that there is delicious candy in the kitchen.');
+});
+
+controller.hears('samuel', ['direct_message','direct_mention'], function(bot, message) {
+    bot.reply(message, 'https://cdn.meme.am/instances/63982466.jpg?v='+(+(new Date())));
 });
 
 controller.hears(['candy'], ['direct_message', 'direct_mention'], function (bot, message) {
 
     if (!state.timeCandyLastFilled) {
-        sendMessage('I have no idea when the candy was last filled.  Why don\'t you just get up and see for yourself!');
+        sendMessage(message, 'I have no idea when the candy was last filled.  Why don\'t you just get up and see for yourself!');
     } else {
         const prettyTime = moment(state.timeCandyLastFilled).fromNow();
 
-        sendMessage('The time the candy jars were filled last in the kitchen was ' + prettyTime);
+        sendMessage(message, 'The time the candy jars were filled last in the kitchen was ' + prettyTime);
 
         const now = +(new Date());
         const timeSinceCandyLastFilled = now - state.timeCandyLastFilled;
         if (timeSinceCandyLastFilled < onehour * 0.5) {
-            sendMessage('Your chances of there being candy is *GOOD*, mutha fucker!');
+            sendMessage(message, 'Your chances of there being candy is *GOOD*, mutha fucker!');
         } else if (timeSinceCandyLastFilled < onehour) {
-            sendMessage('Your chances of there being candy is _OKAY_, mutha fucker!');
+            sendMessage(message, 'Your chances of there being candy is _OKAY_, mutha fucker!');
         } else if (timeSinceCandyLastFilled < onehour * 3) {
-            sendMessage('Your chances of there being candy is SLIM, mutha fucker!');
+            sendMessage(message, 'Your chances of there being candy is SLIM, mutha fucker!');
         }
     }
 });
@@ -218,7 +263,7 @@ controller.hears(/^who am i$/, ['direct_message', 'direct_mention'], function (b
     sendMessage(message, reply);
 });
 
-controller.hears(['check', 'see', 'how', 'funny'], ['direct_message', 'direct_mention'], function (bot, message) {
+controller.hears(['what', 'when', 'how', 'why', "where", "funny"], ['direct_message', 'direct_mention'], function (bot, message) {
     bot.api.reactions.add({
         timestamp: message.ts,
         channel: message.channel,
