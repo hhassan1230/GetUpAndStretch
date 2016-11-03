@@ -6,7 +6,8 @@ let timeCandyLastFilled = null;
 
 // local state
 const state = {
-    userNickName: null
+    userNickName: null,
+    hourInterval: 60000
 };
 
 const controller = botkit.slackbot({
@@ -21,6 +22,18 @@ controller.spawn({
 // give the bot something to listen for.
 controller.hears('hello', ['direct_message', 'direct_mention'], function (bot, message) {
     bot.reply(message, 'Hello yourself, I am alive!');
+});
+
+controller.hears('remind me', ['direct_message', 'direct_mention'], function (bot, message) {
+    hateInterval = setInterval(
+    	startCounter, 
+    	this.state.hourInterval
+    );
+    function startCounter(){
+	    bot.reply(message, 'GET UP AND STRETCH!!!');
+		}
+
+    bot.reply(message, 'Sure, I\'ll remind you remind motherfuka');
 });
 
 controller.hears('what up mofo', ['direct_message', 'direct_mention'], function (bot, message) {
