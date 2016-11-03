@@ -1,8 +1,8 @@
 const moment = require('moment');
 const botkit = require('botkit');
-const { stretchReminder } = require('./reminders');
+const {stretchReminder} = require('./reminders');
 const secrets = require('./secrets.local');
-const { getTweets } = require('./twitter');
+const {getTweets} = require('./twitter');
 
 const profileImg = 'https://avatars.slack-edge.com/2016-11-03/100378866773_45fc1fcfa40df24a68c1_48.png';
 const profileName = 'Samuel Jackson';
@@ -16,12 +16,8 @@ if (!secrets.API_KEY) {
 
 // local state
 const state = {
-    userNickName: null,
-    hourInterval: 5000, // For Debugg
-    userNickName: {},
-    reminderSet: false,
-    upTimestamp: new Date(),
-    timeCandyLastFilled: null,
+    hourInterval: 5000, // For Debug
+    reminderSet: false
 };
 
 // setup
@@ -86,15 +82,22 @@ controller.hears(
     }
 );
 
-controller.hears('remind me to stretch every (.*)',['direct_message', 'direct_mention'],function(bot,message) {
+controller.hears('open the pod bay doors hal', ['direct_message', 'direct_mention'], function (bot, message) {
+    utils.sendMessage(message, 'I\'m sorry, Dave. I\'m afraid I can\'t do that.');
+});
+
+controller.hears('remind me to stretch every (.*)', ['direct_message', 'direct_mention'], function (bot, message) {
     if (state.reminderSet) {
-	    clearInterval(reminderInterval);
-	}
-  var timeType = message.match[1]; //match[1] is the (.*) group. match[0] is the entire group (open the (.*) doors).
-  if (timeType === 'pod bay') {
-    return bot.reply(message, 'I\'m sorry, Dave. I\'m afraid I can\'t do that.');
-  }
-  return bot.reply(message, `Okay reminding you every ${timeType}`);
+        clearInterval(reminderInterval);
+    }
+
+    const timeType = message.match[1]; //match[1] is the (.*) group. match[0] is the entire group (open the (.*) doors).
+
+    if (timeType === 'pod bay') {
+        return bot.reply(message, 'I\'m sorry, Dave. I\'m afraid I can\'t do that.');
+    }
+
+    return bot.reply(message, `Okay reminding you every ${timeType}`);
 });
 
 controller.hears('remind me to stretch', ['direct_message', 'direct_mention'], function (bot, message) {
@@ -106,9 +109,20 @@ controller.hears('remind me to stretch', ['direct_message', 'direct_mention'], f
         state.reminderSet = true;
         bot.reply(message, 'YOU GON BE REMINDED MOTHAFUCKA!');
         bot.reply(message, 'To quit reminders type: `stop reminding me mothafucka`');
-    } else {
+    }
+    else {
         bot.reply(message, 'YOU ALREADY BEIN REMINDED YOU STUPID MOTHAFUCKA!');
     }
+});
+
+controller.hears(['stop reminding me', 'stop reminding me mothafucka', 'stop reminding me muthafucka'], ['direct_message', 'direct_mention'], function (bot, message) {
+    function clearReminder() {
+        clearInterval(reminderInterval)
+    }
+
+    state.reminderSet = false;
+    clearReminder();
+    bot.reply(message, 'No more reminders mothafucka, have fun being a fatass mothafucka!'.toUpperCase());
 });
 
 controller.hears('stop reminding me mothafucka', ['direct_message', 'direct_mention'], function (bot, message) {
@@ -119,9 +133,19 @@ controller.hears('stop reminding me mothafucka', ['direct_message', 'direct_ment
 	clearReminder();
     bot.reply(message, 'NO MORE REMINDRERS MOTHAFUCKA, HAVE FUN BEING A LAZYASS MOTHAFUCKA');
 });
+   
+controller.hears(['stop reminding me', 'stop reminding me mothafucka', 'stop reminding me muthafucka'], ['direct_message', 'direct_mention'], function (bot, message) {
+    function clearReminder() {
+        clearInterval(reminderInterval)
+    }
 
-controller.hears('restocked', ['direct_message', 'direct_mention'], function (bot, message) {
-    utils.getTeamData(message.team, function (team) {
+    state.reminderSet = false;
+    clearReminder();
+    bot.reply(message, 'No more reminders mothafucka, have fun being a LAZYASS mothafucka!'.toUpperCase());
+});
+
+controller.hears(['candy restocked', 'restocked'], ['direct_message', 'direct_mention'], function (bot, message) {
+    utils.getTeamData(message.team, function (err, team) {
         team.timeCandyLastFilled = +(new Date());
 
         utils.sendMessage(message, 'Thanks for the note bro, I\'ll tell everyone else.');
@@ -130,8 +154,8 @@ controller.hears('restocked', ['direct_message', 'direct_mention'], function (bo
     });
 });
 
-controller.hears('candy', ['direct_message', 'direct_mention'], function(bot, message) {
-    utils.getTeamData(message.team, function (team) {
+controller.hears('candy', ['direct_message', 'direct_mention'], function (bot, message) {
+    utils.getTeamData(message.team, function (err, team) {
         if (!team.timeCandyLastFilled) {
             utils.sendMessage(message, 'I have no idea when the candy was last filled.  Why don\'t you just get up and see for yourself!');
         }
@@ -168,7 +192,7 @@ controller.hears('samuel', ['direct_message', 'direct_mention'], function (bot, 
     });
 });
 
-controller.hears(['what did you say', 'whatdidyousay'], ['direct_message', 'direct_mention'], function (bot, message) {
+controller.hears(['what did you say', 'whatdidyousay', 'saywhat'], ['direct_message', 'direct_mention'], function (bot, message) {
     function callback(tweets) {
         const randomTweet = Math.floor(Math.random() * tweets.length);
         bot.reply(message, {
@@ -186,27 +210,6 @@ controller.hears(['what did you say', 'whatdidyousay'], ['direct_message', 'dire
     getTweets(callback);
 });
 
-controller.hears('candy', ['direct_message', 'direct_mention'], function(bot, message) {
-    if (!state.timeCandyLastFilled) {
-        utils.sendMessage(message, 'I have no idea when the candy was last filled.  Why don\'t you just get up and see for yourself!');
-    } else {
-        const prettyTime = moment(state.timeCandyLastFilled).fromNow();
-
-        utils.sendMessage(message, 'The time the candy jars were filled last in the kitchen was ' + prettyTime);
-
-        const now = +(new Date());
-        const timeSinceCandyLastFilled = now - state.timeCandyLastFilled;
-        if (timeSinceCandyLastFilled < onehour * 0.5) {
-            utils.sendMessage(message, 'Your chances of there being candy is *GOOD*, mutha fucker!');
-        } else if (timeSinceCandyLastFilled < onehour) {
-            utils.sendMessage(message, 'Your chances of there being candy is _OKAY_, mutha fucker!');
-        } else if (timeSinceCandyLastFilled < onehour * 3) {
-            utils.sendMessage(message, 'Your chances of there being candy is SLIM, mutha fucker!');
-        }
-    }
-    getTweets(callback);
-});
-
 controller.hears(['what', 'when', 'how', 'why', "where", "funny"], ['direct_message', 'direct_mention'], function (bot, message) {
     bot.api.reactions.add({
         timestamp: message.ts,
@@ -219,58 +222,54 @@ controller.hears(['what', 'when', 'how', 'why', "where", "funny"], ['direct_mess
     });
 });
 
-controller.hears('', ['presence_change'], function (bot, message) {
-    console.log(message);
-});
-
-function reminderConversation(bot,message) {
+function reminderConversation(bot, message) {
     let nickName;
     state.reminderSet = true;
-    botInstance.startConversation(message, function(err, convo) {
+    botInstance.startConversation(message, function (err, convo) {
         if (!err) {
-            convo.ask(`HOW OFTEN YOU WANNA BE REMIDNED MOTHAFUCKA? 
+            convo.ask(`HOW OFTEN YOU WANNA BE REMINDED MOTHAFUCKA? 
                 \`select A, B, C or D\`
                 A) Every 30 minutes
                 B) Every 60 minutes
                 C) Every 90 minutes
                 D) Every x minutes \`Input your own custom minutes\`
                 `, function (response, convo) {
-	                const answer = response.text.toUpperCase();
-	                if (answer === 'A') {
-	                    reminderInterval = setInterval(stretchReminder.bind(this, bot, message), (1000 * 1800));
-						bot.reply(message, 'YOU GON BE REMINDED EVERY 30 MINUTES MOTHAFUCKA!');
-	                	bot.reply(message, 'To quit reminders type: `stop reminding me mothafucka`');
-	                    convo.stop();
-	                } else if (answer === 'B') {
-	                    reminderInterval = setInterval(stretchReminder.bind(this, bot, message), (1000 * 3600));
-	                    bot.reply(message, 'YOU GON BE REMINDED EVERY 60 MINUTES MOTHAFUCKA!');
-	                    bot.reply(message, 'To quit reminders type: `stop reminding me mothafucka`');
-	                    convo.stop();
-	                } else if (answer === 'C') {
-	                    reminderInterval = setInterval(stretchReminder.bind(this, bot, message), (1000 * 5400));
-	                    bot.reply(message, 'YOU GON BE REMINDED EVERY 90 MINUTES MOTHAFUCKA!');
-	                    bot.reply(message, 'To quit reminders type: `stop reminding me mothafucka`');
-	                    convo.stop();
-	                } else if (answer === 'D') {
-	                    convo.next();
-						convo.ask('WELL THEN HOW MANY MINUTES YOU WANNA BE REMINDED YOU PICKY MUFUCKA?', function(response, convo) {
-							let newAnswer =response.text;
-							newAnswer = parseInt(newAnswer);
-							reminderInterval = setInterval(stretchReminder.bind(this, bot, message), (1000 * newAnswer *60));
-							if (newAnswer === 1) {
-								bot.reply(message, 'YOU GON BE REMINDED EVERY '+ newAnswer +' MINUTE MOTHAFUCKA!');
-			                	bot.reply(message, 'To quit reminders type: `stop reminding me mothafucka`');
-							} else {
-								bot.reply(message, 'YOU GON BE REMINDED EVERY '+ newAnswer +' MINUTE MOTHAFUCKA!');
-			                	bot.reply(message, 'To quit reminders type: `stop reminding me mothafucka`');
-							}
-		                    convo.stop();
-						});
+                const answer = response.text.toUpperCase();
+                if (answer === 'A') {
+                    reminderInterval = setInterval(stretchReminder.bind(this, bot, message), (1000 * 1800));
+                    bot.reply(message, 'YOU GON BE REMINDED EVERY 30 MINUTES MOTHAFUCKA!');
+                    bot.reply(message, 'To quit reminders type: `stop reminding me mothafucka`');
+                    convo.stop();
+                } else if (answer === 'B') {
+                    reminderInterval = setInterval(stretchReminder.bind(this, bot, message), (1000 * 3600));
+                    bot.reply(message, 'YOU GON BE REMINDED EVERY 60 MINUTES MOTHAFUCKA!');
+                    bot.reply(message, 'To quit reminders type: `stop reminding me mothafucka`');
+                    convo.stop();
+                } else if (answer === 'C') {
+                    reminderInterval = setInterval(stretchReminder.bind(this, bot, message), (1000 * 5400));
+                    bot.reply(message, 'YOU GON BE REMINDED EVERY 90 MINUTES MOTHAFUCKA!');
+                    bot.reply(message, 'To quit reminders type: `stop reminding me mothafucka`');
+                    convo.stop();
+                } else if (answer === 'D') {
+                    convo.next();
+                    convo.ask('WELL THEN HOW MANY MINUTES YOU WANNA BE REMINDED YOU PICKY MUFUCKA?', function (response, convo) {
+                        let newAnswer = response.text;
+                        newAnswer = parseInt(newAnswer);
+                        reminderInterval = setInterval(stretchReminder.bind(this, bot, message), (1000 * newAnswer * 60));
+                        if (newAnswer === 1) {
+                            bot.reply(message, 'YOU GON BE REMINDED EVERY ' + newAnswer + ' MINUTE MOTHAFUCKA!');
+                            bot.reply(message, 'To quit reminders type: `stop reminding me mothafucka`');
+                        } else {
+                            bot.reply(message, 'YOU GON BE REMINDED EVERY ' + newAnswer + ' MINUTE MOTHAFUCKA!');
+                            bot.reply(message, 'To quit reminders type: `stop reminding me mothafucka`');
+                        }
+                        convo.stop();
+                    });
                 } else {
-					bot.reply(message, 'YO ANSWER WASN\'T UNDERSTOOD STUPID MOTHAFUCKA. LEARN TO FOLLOW DIRECTIONS YOU STUPID MOTHAFUCKA');
-					setTimeout(() => {
-						reminderConversation(bot, message);
-					}, 1500);
+                    bot.reply(message, 'YO ANSWER WASN\'T UNDERSTOOD STUPID MOTHAFUCKA. LEARN TO FOLLOW DIRECTIONS YOU STUPID MOTHAFUCKA');
+                    setTimeout(() => {
+                        reminderConversation(bot, message);
+                    }, 1500);
 
                 }
             });
@@ -278,12 +277,10 @@ function reminderConversation(bot,message) {
     });
 }
 
-// Name calling
 controller.hears('remind me', ['direct_message', 'direct_mention'], function (bot, message) {
-	if (!state.reminderSet) {
-	    reminderConversation(bot, message);
-	} else {
+    if (!state.reminderSet) {
+        reminderConversation(bot, message);
+    } else {
         bot.reply(message, 'YOU ALREADY BEIN REMINDED YOU STUPID MOTHAFUCKA!');
     }
-
 });
