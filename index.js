@@ -2,6 +2,8 @@ const secrets = require('./secrets.local');
 const moment = require('moment');
 const botkit = require('botkit');
 
+const onehour = 1000 * 60 * 60;
+
 if (!secrets.API_KEY) {
     console.log('Error: Specify a token secrets file');
 
@@ -39,20 +41,33 @@ controller.hears('what up mofo', ['direct_message', 'direct_mention'], function 
 controller.hears('restocked', ['direct_message','direct_mention'], function(bot,message) {
     console.log('Candy restock notification received');
 
-    state.timeCandyLastFilled = new Date();
+    state.timeCandyLastFilled = +(new Date());
 
     bot.reply(message, 'Thanks for notifying me that there is delicious candy in the kitchen.  I will inform everyone.');
 });
 
-controller.hears('candy', ['direct_message','direct_mention'], function(bot,message) {
-    console.log('Candy request received');
+controller.hears('candy', ['direct_message','direct_mention'], function(bot, message) {
+
+    function sendMessage(msg) {
+        bot.reply(message, secrets.botInstanceName + msg);
+    }
 
     if (!state.timeCandyLastFilled) {
-        bot.reply(message, 'I have no idea when the candy was last filled.  Why don\'t you just get up and see for yourself!');
+        sendMessage('I have no idea when the candy was last filled.  Why don\'t you just get up and see for yourself!');
     } else {
         const prettyTime = moment(state.timeCandyLastFilled).fromNow();
 
-        bot.reply(message, 'The time the candy jars were filled last in the kitchen was ' + prettyTime);
+        sendMessage('The time the candy jars were filled last in the kitchen was ' + prettyTime);
+
+        const now = +(new Date());
+        const timeSinceCandyLastFilled = now - state.timeCandyLastFilled;
+        if (timeSinceCandyLastFilled < onehour * 0.5) {
+            sendMessage('Your chances of there being candy is *GOOD*, mutha fucker!');
+        } else if (timeSinceCandyLastFilled < onehour) {
+            sendMessage('Your chances of there being candy is _OKAY_, mutha fucker!');
+        } else if (timeSinceCandyLastFilled < onehour * 3) {
+            sendMessage('Your chances of there being candy is SLIM, mutha fucker!');
+        }
     }
 });
 
