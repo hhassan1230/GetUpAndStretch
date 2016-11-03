@@ -39,7 +39,12 @@ var botInstance = controller.spawn({
 function sendMessage(message, reply) {
     botInstance.reply(message, secrets.botInstanceName + reply);
 }
+//when bot enters the room
+controller.on('channel_joined',function(bot,message) {
 
+  sendMessage(message,"Can-a muh fukkasay fuck on here?");
+
+});
 // give the bot something to listen for.
 controller.hears(
     ['uptime', 'identify yourself', 'who are you', 'what is your name'],
@@ -152,7 +157,7 @@ controller.hears(/who am i\??/, ['direct_message', 'direct_mention'], function (
     sendMessage(message, reply);
 });
 
-controller.hears(['check', 'see', 'how', 'funny'], ['direct_message', 'direct_mention'], function (bot, message) {
+controller.hears(['what', 'when', 'how', 'why', "where", "funny"], ['direct_message', 'direct_mention'], function (bot, message) {
     bot.api.reactions.add({
         timestamp: message.ts,
         channel: message.channel,
