@@ -1,3 +1,5 @@
+   const secrets = require('./secrets.local');
+
     var error = function (err, response, body) {
         console.log('ERROR [%s]', err);
     };
@@ -10,10 +12,10 @@
 
     //Get this data from your twitter apps dashboard
     var config = {
-        "consumerKey": "XCCmzUhGIbCWlh35N0J7oxDSR",
-        "consumerSecret": "RFUYFrsLcn2SGKdMWvMj27vNyubZs3D9XQBCupnPeTuzjoaUjD",
-        "accessToken": "29933421-pZTFh36uJn7SFFhElYb7tAGCR7n3iiRZBzApAKhP0",
-        "accessTokenSecret": "3NSa1i6DzOBsQxlzAu0TBGZCvEQq2AaC7NN7GR13BS4vN"
+        "consumerKey": secrets.consumerKey,
+        "consumerSecret": secrets.consumerSecret,
+        "accessToken": secrets.accessToken,
+        "accessTokenSecret": secrets.accessTokenSecret
     }
 
     var twitter = new Twitter(config);
