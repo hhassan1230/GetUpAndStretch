@@ -40,7 +40,13 @@ function sendMessage(message, reply) {
     botInstance.reply(message, secrets.botInstanceName + reply);
 }
 //when bot enters the room
-controller.on('bot_channel_joined',function(bot,message) {
+controller.on('bot_channel_join',function(bot,message) {
+
+  sendMessage(message,"Can-a muh fukkasay fuck on here?");
+
+});
+
+controller.on('bot_group_join',function(bot,message) {
 
   sendMessage(message,"Can-a muh fukkasay fuck on here?");
 
