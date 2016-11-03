@@ -4,6 +4,9 @@ const botkit = require('botkit');
 const { stretchReminder } = require('./reminders');
 const os = require('os');
 
+const profileImg = 'https://avatars.slack-edge.com/2016-11-03/100378866773_45fc1fcfa40df24a68c1_48.png';
+const profileName = 'Samuel Jackson';
+
 const onehour = 1000 * 60 * 60;
 
 if (!secrets.API_KEY) {
@@ -13,7 +16,6 @@ if (!secrets.API_KEY) {
 
 // local state
 const state = {
-    userNickName: null,
     hourInterval: 5000,
     userNickName: {},
     reminderSet: false,
@@ -23,7 +25,8 @@ const state = {
 
 // setup
 const controller = botkit.slackbot({
-    debug: false
+    debug: false,
+    interactive_replies: true
 });
 
 let reminderInterval;
@@ -129,11 +132,19 @@ controller.hears('restocked', ['direct_message', 'direct_mention'], function (bo
     sendMessage(message, 'Thanks for notifying me that there is delicious candy in the kitchen.');
 });
 
-controller.hears('samuel', ['direct_message','direct_mention'], function(bot, message) {
-    bot.reply(message, 'https://cdn.meme.am/instances/63982466.jpg?v='+(+(new Date())));
+controller.hears('samuel', ['direct_message', 'direct_mention'], function (bot, message) {
+    bot.reply(message, {
+        "attachments": [
+            {
+                "author_name": profileName,
+                "author_icon": profileImg,
+                "image_url": "https://cdn.meme.am/instances/63982466.jpg",
+            }
+        ]
+    });
 });
 
-controller.hears(['candy'], ['direct_message', 'direct_mention'], function (bot, message) {
+controller.hears('candy', ['direct_message', 'direct_mention'], function(bot, message) {
 
     if (!state.timeCandyLastFilled) {
         sendMessage(message, 'I have no idea when the candy was last filled.  Why don\'t you just get up and see for yourself!');
