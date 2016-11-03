@@ -4,6 +4,7 @@
   "description": "a slackbot for reminders to stretch",
   "main": "index.js",
   "scripts": {
+    "dev": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -19,5 +20,8 @@
   "dependencies": {
     "botkit": "^0.4.0",
     "momentjs": "^2.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.11.0"
   }
 }
