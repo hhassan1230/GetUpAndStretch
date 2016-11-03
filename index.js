@@ -17,8 +17,8 @@ const state = {
     hourInterval: 5000,
     userNickName: {},
     reminderSet: false,
-    timeCandyLastFilled: null
-    upTimestamp: new Date(),
+    timeCandyLastFilled: null,
+    upTimestamp: new Date()
 };
 
 // setup
@@ -40,7 +40,7 @@ function sendMessage(message, reply) {
     botInstance.reply(message, secrets.botInstanceName + reply);
 }
 //when bot enters the room
-controller.on('channel_joined',function(bot,message) {
+controller.on('bot_channel_joined',function(bot,message) {
 
   sendMessage(message,"Can-a muh fukkasay fuck on here?");
 
