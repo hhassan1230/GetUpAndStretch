@@ -1,23 +1,30 @@
-   const secrets = require('./secrets.local');
+const secrets = require('./secrets.local');
 
-    var error = function (err, response, body) {
-        console.log('ERROR [%s]', err);
-    };
-    var success = function (data) {
-    	let cool = JSON.parse(data).map(function(e){return e.text});
-        console.log(cool)
-    };
+const error = function (err, response, body) {
+    console.log('ERROR in twitter.js: [%o]', err);
+};
 
-    var Twitter = require('twitter-js-client').Twitter;
+const Twitter = require('twitter-js-client').Twitter;
+const config = {
+    "consumerKey": secrets.twitterConsumerKey,
+    "consumerSecret": secrets.twitterConsumerSecret,
+    "accessToken": secrets.twitterAccessToken,
+    "accessTokenSecret": secrets.twitterAccessTokenSecret
+};
 
-    //Get this data from your twitter apps dashboard
-    var config = {
-        "consumerKey": secrets.consumerKey,
-        "consumerSecret": secrets.consumerSecret,
-        "accessToken": secrets.accessToken,
-        "accessTokenSecret": secrets.accessTokenSecret
+const twitter = new Twitter(config);
+
+function getTweets(callback) {
+    function handleSuccess(data) {
+        const tweets = JSON.parse(data).map(function (e) {
+            return (e.text);
+        });
+        callback(tweets);
     }
 
-    var twitter = new Twitter(config);
+    twitter.getUserTimeline({screen_name: 'SamuelLJackson', count: '20'}, error, handleSuccess);
+}
 
-     var bob = twitter.getUserTimeline({ screen_name: 'SamuelLJackson', count: '9'}, error, success);
+module.exports = {
+    getTweets: getTweets,
+};

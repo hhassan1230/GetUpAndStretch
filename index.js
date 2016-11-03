@@ -1,7 +1,8 @@
 const moment = require('moment');
 const botkit = require('botkit');
-const {stretchReminder} = require('./reminders');
+const { stretchReminder } = require('./reminders');
 const secrets = require('./secrets.local');
+const { getTweets } = require('./twitter');
 
 const profileImg = 'https://avatars.slack-edge.com/2016-11-03/100378866773_45fc1fcfa40df24a68c1_48.png';
 const profileName = 'Samuel Jackson';
@@ -124,6 +125,24 @@ controller.hears('samuel', ['direct_message', 'direct_mention'], function (bot, 
             }
         ]
     });
+});
+
+controller.hears(['what did you say', 'whatdidyousay'], ['direct_message', 'direct_mention'], function (bot, message) {
+    function callback(tweets) {
+        const randomTweet = Math.floor(Math.random() * tweets.length);
+        bot.reply(message, {
+            "attachments": [
+                {
+                    "author_name": profileName,
+                    "author_icon": profileImg,
+                    "image_url": "https://pbs.twimg.com/profile_images/742877069793742848/c0Ec2mTU.jpg",
+                    "text": tweets[randomTweet]
+                }
+            ]
+        });
+    }
+
+    getTweets(callback);
 });
 
 controller.hears('candy', ['direct_message', 'direct_mention'], function(bot, message) {
