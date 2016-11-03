@@ -117,7 +117,7 @@ controller.hears('stop reminding me mothafucka', ['direct_message', 'direct_ment
 	}
 	state.reminderSet = false;
 	clearReminder();
-    bot.reply(message, 'No more reminders mothafucka, have fun being a fatass mothafucka!'.toUpperCase());
+    bot.reply(message, 'NO MORE REMINDRERS MOTHAFUCKA, HAVE FUN BEING A LAZYASS MOTHAFUCKA');
 });
 
 controller.hears('restocked', ['direct_message', 'direct_mention'], function (bot, message) {
