@@ -204,8 +204,8 @@ controller.hears(['what', 'when', 'how', 'why', "where", "funny"], ['direct_mess
 });
 
 function reminderConversation(bot, message) {
-    let nickName;
     state.reminderSet = true;
+
     botInstance.startConversation(message, function (err, convo) {
         if (!err) {
             convo.ask(`HOW OFTEN YOU WANNA BE REMINDED MOTHAFUCKA? 
@@ -216,22 +216,26 @@ function reminderConversation(bot, message) {
                 D) Every x minutes \`Input your own custom minutes\`
                 `, function (response, convo) {
                 const answer = response.text.toUpperCase();
+
                 if (answer === 'A') {
                     reminderInterval = setInterval(stretchReminder.bind(this, bot, message), (1000 * 1800));
                     bot.reply(message, 'YOU GON BE REMINDED EVERY 30 MINUTES MOTHAFUCKA!');
                     bot.reply(message, 'To quit reminders type: `stop reminding me mothafucka`');
                     convo.stop();
-                } else if (answer === 'B') {
+                }
+                else if (answer === 'B') {
                     reminderInterval = setInterval(stretchReminder.bind(this, bot, message), (1000 * 3600));
                     bot.reply(message, 'YOU GON BE REMINDED EVERY 60 MINUTES MOTHAFUCKA!');
                     bot.reply(message, 'To quit reminders type: `stop reminding me mothafucka`');
                     convo.stop();
-                } else if (answer === 'C') {
+                }
+                else if (answer === 'C') {
                     reminderInterval = setInterval(stretchReminder.bind(this, bot, message), (1000 * 5400));
                     bot.reply(message, 'YOU GON BE REMINDED EVERY 90 MINUTES MOTHAFUCKA!');
                     bot.reply(message, 'To quit reminders type: `stop reminding me mothafucka`');
                     convo.stop();
-                } else if (answer === 'D') {
+                }
+                else if (answer === 'D') {
                     convo.next();
                     convo.ask('WELL THEN HOW MANY MINUTES YOU WANNA BE REMINDED YOU PICKY MUFUCKA?', function (response, convo) {
                         let newAnswer = response.text;
