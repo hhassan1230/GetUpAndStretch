@@ -125,6 +125,25 @@ controller.hears(['stop reminding me', 'stop reminding me mothafucka', 'stop rem
     bot.reply(message, 'No more reminders mothafucka, have fun being a fatass mothafucka!'.toUpperCase());
 });
 
+controller.hears('stop reminding me mothafucka', ['direct_message', 'direct_mention'], function (bot, message) {
+    function clearReminder(){
+	    clearInterval(reminderInterval)
+	}
+	state.reminderSet = false;
+	clearReminder();
+    bot.reply(message, 'NO MORE REMINDRERS MOTHAFUCKA, HAVE FUN BEING A LAZYASS MOTHAFUCKA');
+});
+   
+controller.hears(['stop reminding me', 'stop reminding me mothafucka', 'stop reminding me muthafucka'], ['direct_message', 'direct_mention'], function (bot, message) {
+    function clearReminder() {
+        clearInterval(reminderInterval)
+    }
+
+    state.reminderSet = false;
+    clearReminder();
+    bot.reply(message, 'No more reminders mothafucka, have fun being a LAZYASS mothafucka!'.toUpperCase());
+});
+
 controller.hears(['candy restocked', 'restocked'], ['direct_message', 'direct_mention'], function (bot, message) {
     utils.getTeamData(message.team, function (err, team) {
         team.timeCandyLastFilled = +(new Date());
