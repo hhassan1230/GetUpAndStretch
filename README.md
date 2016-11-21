@@ -1,5 +1,6 @@
 # GetUpAndStretch
 
+![gu02](https://cloud.githubusercontent.com/assets/9095253/20485973/dece018e-afcb-11e6-97a3-ab7f49c08457.jpg)
 
 What does the GetUpAndStretch Bot Do?
 
